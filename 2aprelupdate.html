@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupidrupy</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e3a8a;
+            --accent-color: #10b981;
+            --text-color: white;
+            --dark-bg: #0f172a;
+            --light-bg: #1e293b;
+            --energy-full: #3b82f6;
+            --energy-low: #ef4444;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .game-title {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .tap-section {
+            flex: 1;
+            background-color: var(--light-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tap-target {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: all 0.1s;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 5px solid var(--primary-color);
+            user-select: none;
+        }
+        
+        .tap-target:active {
+            transform: scale(0.95);
+            background-color: var(--primary-color);
+        }
+        
+        .tap-target img {
+            width: 80%;
+            height: auto;
+        }
+        
+        .stats-section {
+            width: 300px;
+            background-color: var(--light-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-item {
+            margin-bottom: 15px;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        
+        .energy-container {
+            margin-top: 10px;
+        }
+        
+        .energy-bar {
+            height: 20px;
+            background-color: #334155;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--energy-low), var(--energy-full));
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        .shop-section {
+            margin-top: 30px;
+            background-color: var(--light-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .shop-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .shop-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .shop-tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .shop-content {
+            display: none;
+        }
+        
+        .shop-content.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .upgrade-item {
+            background-color: #334155;
+            border-radius: 10px;
+            padding: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .upgrade-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .upgrade-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .upgrade-description {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-price {
+            font-size: 1rem;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-button {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .upgrade-button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .upgrade-button:disabled {
+            background-color: #475569;
+            cursor: not-allowed;
+        }
+        
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            color: black;
+        }
+        
+        .chat-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+        }
+        
+        .chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px 0 0 5px;
+        }
+        
+        .chat-input button {
+            padding: 8px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        
+        .diamond {
+            color: #60a5fa;
+            font-weight: bold;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateX(200%);
+            transition: transform 0.3s;
+            z-index: 100;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .settings-content {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .tg-channel-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .stats-section {
+                width: auto;
+            }
+            
+            .chat-container {
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="game-title">LUPIDRUPY</h1>
+            <button class="settings-button" onclick="openSettings()">Настройки</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="tap-section">
+                <div class="tap-target" onclick="tap()">
+                    <img src="https://via.placeholder.com/200" alt="Tap Me">
+                </div>
+                
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <div class="stat-label">Золото</div>
+                        <div class="stat-value" id="score">0</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-label">Алмазные монеты</div>
+                        <div class="stat-value"><span class="diamond" id="gold">0</span></div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-label">Энергия</div>
+                        <div class="stat-value"><span id="energy">1000</span>/<span id="max-energy">1000</span></div>
+                        <div class="energy-container">
+                            <div class="energy-bar">
+                                <div class="energy-fill" id="energy-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-label">Сила клика</div>
+                        <div class="stat-value" id="click-power">1</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-label">Тапы до алмаза</div>
+                        <div class="stat-value" id="taps-to-diamond">0/50</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shop-section">
+            <div class="shop-tabs">
+                <div class="shop-tab active" onclick="openShopTab('upgrades')">Улучшения</div>
+                <div class="shop-tab" onclick="openShopTab('auto')">Автоматика</div>
+                <div class="shop-tab" onclick="openShopTab('boosts')">Бусты</div>
+            </div>
+            
+            <div id="upgrades" class="shop-content active">
+                <div class="upgrade-item">
+                    <div class="upgrade-name">Улучшение клика (Уровень <span id="click-level">1</span>)</div>
+                    <div class="upgrade-description">+1 к силе клика</div>
+                    <div class="upgrade-price">Цена: <span id="click-price">50</span> золота</div>
+                    <button class="upgrade-button" onclick="buyClickUpgrade()">Купить</button>
+                </div>
+                
+                <div class="upgrade-item">
+                    <div class="upgrade-name">Расширение энергии (Уровень <span id="energy-level">1</span>)</div>
+                    <div class="upgrade-description">+100 к максимальной энергии</div>
+                    <div class="upgrade-price">Цена: <span id="energy-price">100</span> золота</div>
+                    <button class="upgrade-button" onclick="buyEnergyExpansion()">Купить</button>
+                </div>
+            </div>
+            
+            <div id="auto" class="shop-content">
+                <div class="upgrade-item">
+                    <div class="upgrade-name">Автоклик</div>
+                    <div class="upgrade-description">Автоматически кликает 1 раз в секунду</div>
+                    <div class="upgrade-price">Цена: 4500 золота</div>
+                    <button class="upgrade-button" onclick="buyAutoClick(4500)" id="autoclick-btn">Купить</button>
+                </div>
+            </div>
+            
+            <div id="boosts" class="shop-content">
+                <div class="upgrade-item">
+                    <div class="upgrade-name">Супер перезарядка</div>
+                    <div class="upgrade-description">Ускоряет восстановление энергии на 30% на 2.5 минуты</div>
+                    <div class="upgrade-price">Цена: <span class="diamond">35</span> алмазов</div>
+                    <button class="upgrade-button" onclick="buySuperRecharge()">Купить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chat-container">
+        <div class="chat-header">Чат</div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Написать сообщение...">
+            <button onclick="sendMessage()">Отпр</button>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <div class="settings-modal" id="settings-modal">
+        <div class="settings-content">
+            <h2>Настройки</h2>
+            <p><strong>Разработчики:</strong> Алальгин</p>
+            <p><strong>Тестировщики:</strong> Илья самовар, Микола мактрахер</p>
+            <p><strong>Дизайнеры:</strong> Анальгин</p>
+            
+            <div style="margin-top: 20px;">
+                <button onclick="resetProgress()">Сброс прогресса</button>
+            </div>
+            
+            <a href="https://t.me/Lupidrupy" class="tg-channel-btn" target="_blank">Наш ТГ канал</a>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button onclick="closeSettings()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Игровые переменные
+        let score = 0;
+        let gold = 0;
+        let energy = 1000;
+        let maxEnergy = 1000;
+        let clickPower = 1;
+        let tapCount = 0;
+        let tapsToDiamond = 0;
+        let autoClickEnabled = false;
+        let superRechargeActive = false;
+        
+        // Уровни улучшений
+        let clickUpgradeLevel = 1;
+        const clickUpgradePrices = [50, 150, 500, 1000, 2500, 5000, 10000];
+        
+        let energyUpgradeLevel = 1;
+        const energyUpgradePrices = [100, 250, 500, 1000, 2500, 5000, 10000];
+        
+        // Инициализация игры
+        function initGame() {
+            updateUI();
+            startEnergyRecovery();
+            loadGame();
+        }
+        
+        // Функция тапа
+        function tap() {
+            if (energy > 0) {
+                score += clickPower;
+                energy--;
+                tapCount++;
+                tapsToDiamond++;
+                
+                // Проверка на получение алмазов
+                if (tapsToDiamond >= 50) {
+                    gold += 5;
+                    tapsToDiamond = 0;
+                    showNotification("Получено 5 алмазных монет!");
+                    addChatMessage("Система", "Вы получили 5 алмазных монет за 50 тапов!", "var(--accent-color)");
+                }
+                
+                updateUI();
+                saveGame();
+            }
+        }
+        
+        // Покупка улучшения клика
+        function buyClickUpgrade() {
+            const currentPrice = clickUpgradePrices[clickUpgradeLevel - 1];
+            
+            if (score >= currentPrice && clickUpgradeLevel <= 7) {
+                score -= currentPrice;
+                clickPower += 1;
+                clickUpgradeLevel++;
+                
+                showNotification(`Улучшение клика +1 (Уровень ${clickUpgradeLevel})!`);
+                addChatMessage("Система", `Улучшение клика +1 (Уровень ${clickUpgradeLevel}) куплено!`, "var(--primary-color)");
+                
+                // Обновляем цену для следующего уровня
+                if (clickUpgradeLevel <= 7) {
+                    document.getElementById("click-price").textContent = clickUpgradePrices[clickUpgradeLevel - 1];
+                } else {
+                    document.querySelector('#upgrades .upgrade-button').disabled = true;
+                    document.querySelector('#upgrades .upgrade-description').textContent = "Максимальный уровень!";
+                }
+                
+                document.getElementById("click-level").textContent = clickUpgradeLevel;
+                updateUI();
+                saveGame();
+            }
+        }
+        
+        // Покупка расширения энергии
+        function buyEnergyExpansion() {
+            const currentPrice = energyUpgradePrices[energyUpgradeLevel - 1];
+            
+            if (score >= currentPrice && energyUpgradeLevel <= 7) {
+                score -= currentPrice;
+                maxEnergy += 100;
+                energy += 100;
+                energyUpgradeLevel++;
+                
+                showNotification(`Энергия +100 (Уровень ${energyUpgradeLevel})!`);
+                addChatMessage("Система", `Энергия +100 (Уровень ${energyUpgradeLevel}) куплена!`, "var(--primary-color)");
+                
+                // Обновляем цену для следующего уровня
+                if (energyUpgradeLevel <= 7) {
+                    document.getElementById("energy-price").textContent = energyUpgradePrices[energyUpgradeLevel - 1];
+                } else {
+                    document.querySelectorAll('#upgrades .upgrade-button')[1].disabled = true;
+                    document.querySelectorAll('#upgrades .upgrade-description')[1].textContent = "Максимальный уровень!";
+                }
+                
+                document.getElementById("energy-level").textContent = energyUpgradeLevel;
+                updateUI();
+                saveGame();
+            }
+        }
+        
+        // Покупка автоклика
+        function buyAutoClick(cost) {
+            if (score >= cost && !autoClickEnabled) {
+                score -= cost;
+                autoClickEnabled = true;
+                document.getElementById('autoclick-btn').disabled = true;
+                startAutoClick();
+                showNotification("Автоклик активирован!");
+                addChatMessage("Система", "Автоклик активирован!", "var(--primary-color)");
+                updateUI();
+                saveGame();
+            }
+        }
+        
+        // Покупка супер перезарядки
+        function buySuperRecharge() {
+            const cost = 35;
+            
+            if (gold >= cost && !superRechargeActive) {
+                gold -= cost;
+                superRechargeActive = true;
+                
+                // Ускоряем восстановление энергии
+                clearInterval(energyRecoveryInterval);
+                energyRecoveryInterval = setInterval(() => {
+                    if (energy < maxEnergy) {
+                        energy = Math.min(energy + 13, maxEnergy); // 10 + 30% = 13
+                        updateUI();
+                        saveGame();
+                    }
+                }, 1000);
+                
+                showNotification("Супер перезарядка активирована на 2.5 минуты!");
+                addChatMessage("Система", "Супер перезарядка активирована! Восстановление энергии ускорено на 30%", "var(--primary-color)");
+                
+                // Возвращаем обычное восстановление через 2.5 минуты
+                setTimeout(() => {
+                    superRechargeActive = false;
+            
